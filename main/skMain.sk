@@ -1,0 +1,86 @@
+command posta [<text>]:
+	aliases: sonoyuncuposta, soposta
+	trigger:
+		set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+		if arg-1 is "yardım" or "yardim":
+			send "&9&m---------------------------------------------"
+			send "&e/posta <oyuncu> &f- &bBir oyuncuya posta gönder."
+			if player has permission "sonoyuncposta.admin":
+				send "&e/posta:admin yardım &f- &bYetkili komutlarını gösterir."
+			send "&9&m---------------------------------------------"
+		else if arg-1 is set:
+			if player's tool = air:	
+				set {_msg::*} to "%SonOyuncuPosta_getLang("itemIsAir")%"
+				send formatted "%{_prefix}% %{_msg::*}%" to player
+			else:
+				set {_p} to arg-1 parsed as an offline player
+				if {_p} = player:
+					set {_msg::*} to "%SonOyuncuPosta_getLang("cantGiftYourself")%"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+				else:
+					if {_p} isn't online:
+						set {_msg::*} to "%SonOyuncuPosta_getLang("playerOffline")%"
+						replace "{player}" in {_msg::*} with "%{_p}%"
+						send formatted "%{_prefix}% %{_msg::*}%" to player
+					else:
+						set {_i} to player's held item
+						SonOyuncuPosta_sendGift(player, {_p}, {_i})
+		else:
+			set {_msg::*} to "%SonOyuncuPosta_getLang("wrongUsage")%"
+			replace "{command}" in {_msg::*} with "posta yardım"
+			send formatted "%{_prefix}% %{_msg::*}%" to player
+			
+command posta:admin [<text>] [<offlineplayer>]:
+	aliases: sonoyuncuposta:admin, soposta:admin
+	trigger:
+		set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+		if player has permission "sonoyuncuposta.admin":
+			if arg-1 isn't set:
+				set {_msg::*} to "%SonOyuncuPosta_getLang("wrongUsage")%"
+				replace "{command}" in {_msg::*} with "posta:admin yardım"
+				send formatted "%{_prefix}% %{_msg::*}%" to player
+			if arg-1 is "yardım" or "yardim":
+				if arg-2 is set:
+					set {_msg::*} to "%SonOyuncuPosta_getLang("wrongUsage")%"
+					replace "{command}" in {_msg::*} with "posta:admin yardım"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+				else:
+					send "&9&m---------------------------------------------"
+					send "&c/posta:admin ver <oyuncu> &f- &bBir oyuncuya posta kutusu verir."
+					send "&c/posta:admin sıfırla <oyuncu> &f- &bOyuncunun postalarını sıfırlar."
+					send "&c/posta:admin yenile &f- &bSkript dosyalarını yeniler."
+					send "&c/posta:admin yardım &f- &bBu mesajları gösterir."
+					send "&9&m---------------------------------------------"
+			if arg-1 is "ver":
+				if arg-2 isn't set:
+					set {_msg::*} to "%SonOyuncuPosta_getLang("wrongUsage")%"
+					replace "{command}" in {_msg::*} with "posta:admin ver <oyuncu>"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+				else:
+					if arg-2 is not online:
+						set {_msg::*} to "%SonOyuncuPosta_getLang("playerOffline")%"
+						replace "{player}" in {_msg::*} with "%arg-2%"
+						send formatted "%{_prefix}% %{_msg::*}%" to player
+					else:
+						SonOyuncuPosta_giveMailBox(arg-2)
+			if arg-1 is "yenile":
+				if arg-2 is set:
+					set {_msg::*} to "%SonOyuncuPosta_getLang("wrongUsage")%"
+					replace "{command}" in {_msg::*} with "posta:admin yenile"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+				else:
+					SonOyuncuPosta_reloadSkript()
+					set {_msg::*} to "%SonOyuncuPosta_getLang("skriptReload")%"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+			if arg-1 is "sıfırla" or "sifirla":
+				if arg-2 isn't set:
+					set {_msg::*} to "%SonOyuncuPosta_getLang("wrongUsage")%"
+					replace "{command}" in {_msg::*} with "posta:admin sıfırla <oyuncu>"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+				else:
+					set {_msg::*} to "%SonOyuncuPosta_getLang("deleteAllMails")%"
+					replace "{player}" in {_msg::*} with "%arg-2%"
+					replace "{amount}" in {_msg::*} with "%size of {posta::%arg-2%::*}%"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+					delete {posta::%arg-2%::*}
+					
