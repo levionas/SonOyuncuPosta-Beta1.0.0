@@ -1,8 +1,4 @@
-  ___  ___  _  _    _____   ___   _ _  _  ___ _   _   ___  ___  ___ _____ _   
- / __|/ _ \| \| |  / _ \ \ / / | | | \| |/ __| | | | | _ \/ _ \/ __|_   _/_\  
- \__ \ (_) | .` | | (_) \ V /| |_| | .` | (__| |_| | |  _/ (_) \__ \ | |/ _ \ 
- |___/\___/|_|\_|  \___/ |_|  \___/|_|\_|\___|\___/  |_|  \___/|___/ |_/_/ \_\
-                                                                              
+## SonOyuncu Posta
 
  Bu skript (SonOyuncuPosta-Beta1.0.0) TeamXio Project tarafından hazırlanmış ve
  TeamLevionas tarafından geliştirilmiştir.
