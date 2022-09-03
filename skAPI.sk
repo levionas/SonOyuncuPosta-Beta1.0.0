@@ -1,0 +1,172 @@
+on load:
+	send "[SonOyuncuPosta] Skript dökümanları oluşturuluyor..." to console
+	load yaml "plugins/SonOyuncuPosta/config.yml" as "config"
+	if yaml "config" is empty:
+
+		set yaml value "Version" from "config" to "1.0.0"
+        
+		set yaml value "Prefix" from "config" to "&7[&6SonOyuncuPosta&7]"
+		
+		set yaml value "Messages.wrongUsage" from "config" to "&cHatalı komut. &7/{command} &cyazarak yardım alabilirsiniz."
+		set yaml value "Messages.itemIsAir" from "config" to "&cElinde hediyelik bir eşya olmalı. (Herhangi bir şey olabilir, hava olmasın yeterki.)"
+		set yaml value "Messages.tooManyGifts" from "config" to "&b{player} &cisimli oyuncunun posta kutusu ağzına kadar dolu."
+		set yaml value "Messages.playerOffline" from "config" to "&cAradığınız &b{player} &cisimli oyuncu oyunda değil."
+		set yaml value "Messages.cantSetHere" from "config" to "&cPosta kutusu buraya konulamaz."
+		set yaml value "Messages.notYourMailBox" from "config" to "&cBu posta kutusu senin olmadığından etkileşime giremezsin."
+		set yaml value "Messages.cantGiftYourself" from "config" to "&cKendine posta yoluyla hediye gönderemezsin."
+		set yaml value "Messages.deleteAllMails" from "config" to "&b{player} &aadlı oyuncunun &f{amount} &apostası silindi!"
+		set yaml value "Messages.youGiftPlayer" from "config" to "&aBaşarıyla &b{player} &aisimli oyuncuya bir posta gönderdin!"
+		set yaml value "Messages.playerGiftSend" from "config" to "&b{player} &aisimli oyuncu sana bir posta gönderdi!"
+		set yaml value "Messages.mailBoxGive" from "config" to "&aYöneticilerden biri sana posta kutusu verdi!"
+		set yaml value "Messages.giftTake" from "config" to "&aBaşarıyla &b{player} &aadlı oyuncunun hediyesini aldın!"
+		set yaml value "Messages.mailBoxSet" from "config" to "&aPosta kutun &f{location} &akonumuna yerleştirildi!"
+		set yaml value "Messages.notEnoughPerm" from "config" to "&cBunun için yetkin yok. &7&o({permission})"
+		set yaml value "Messages.skriptReload" from "config" to "&bSkript &fdosyaları ve ayarları &ayenilendi&f."
+
+		set the comments of yaml node "Version" from "config" to "  ___  ___  _  _    _____   ___   _ _  _  ___ _   _" and " / __|/ _ \| \| |  / _ \ \ / / | | | \| |/ __| | | |" and " \__ \ (_) | .` | | (_) \ V /| |_| | .` | (__| |_| |" and " |___/\___/|_|\_|  \___/ |_|  \___/|_|\_|\___|\___/ "
+		set the comments of yaml node "Prefix" from "config" to "" and "Skript tarafından kullanılan mesajların başına gelir." and ""
+		set the comments of yaml node "Messages" from "config" to "" and "Skript tarafından kullanılan oyun içi mesajların tamamıdır" and ""
+	
+		save yaml "config"
+	send "[SonOyuncuPosta] Skript dökümanları ve dosyaları başarıyla oluşturuldu!" to console
+	
+function SonOyuncuPosta_getLang(t: text) :: objects:
+	if {_t} = "prefix":
+		return yaml value "Prefix" from "config"
+	else if {_t} = "wrongUsage":
+		return yaml value "Messages.wrongUsage" from "config"
+	else if {_t} = "notEnoughPerm":
+		return yaml value "Messages.notEnoughPerm" from "config"
+	else if {_t} = "skriptReload":
+		return yaml value "Messages.skriptReload" from "config"
+	else if {_t} = "tooManyGifts":
+		return yaml value "Messages.tooManyGifts" from "config"
+	else if {_t} = "playerGiftSend":
+		return yaml value "Messages.playerGiftSend" from "config"
+	else if {_t} = "youGiftPlayer":
+		return yaml value "Messages.youGiftPlayer" from "config"
+	else if {_t} = "mailBoxGive":
+		return yaml value "Messages.mailBoxGive" from "config"
+	else if {_t} = "itemIsAir":
+		return yaml value "Messages.itemIsAir" from "config"
+	else if {_t} = "playerOffline":
+		return yaml value "Messages.playerOffline" from "config"
+	else if {_t} = "giftTake":
+		return yaml value "Messages.giftTake" from "config"
+	else if {_t} = "cantSetHere":
+		return yaml value "Messages.cantSetHere" from "config"
+	else if {_t} = "notYourMailBox":
+		return yaml value "Messages.notYourMailBox" from "config"
+	else if {_t} = "deleteAllMails":
+		return yaml value "Messages.deleteAllMails" from "config"
+	else if {_t} = "mailBoxSet":
+		return yaml value "Messages.mailBoxSet" from "config"
+	else if {_t} = "cantGiftYourself":
+		return yaml value "Messages.cantGiftYourself" from "config"
+	else:
+		send "[SonOyuncuPosta] Bilinmeyen dönüm noktası. (%script%)" to console
+		
+function SonOyuncuPosta_sendGift(p: player, o: player, i: item):
+	set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+	if size of {posta::%{_o}%::*} > 44:
+		set {_msg::*} to "%SonOyuncuPosta_getLang("tooManyGifts")%"
+		replace "{player}" in {_msg::*} with "%{_o}%"
+		send formatted "%{_prefix}% %{_msg::*}%" to {_p}
+	else:
+		remove {_i} from {_p}'s inventory
+		add {_i} to {posta::%{_o}%::*}
+		set {sender::%{_o}%::%{_i}%} to {_p}
+		set {date::%{_o}%::%{_i}%} to now
+		set {_msg::*} to "%SonOyuncuPosta_getLang("playerGiftSend")%"
+		replace "{player}" in {_msg::*} with "%{_p}%"
+		send formatted "%{_prefix}% %{_msg::*}%" to {_o}
+		set {_msg::*} to "%SonOyuncuPosta_getLang("youGiftPlayer")%"
+		replace "{player}" in {_msg::*} with "%{_o}%"
+		send formatted "%{_prefix}% %{_msg::*}%" to {_p}
+		
+function SonOyuncuPosta_giftMenu(p: player):
+	set {_p}'s metadata "POSTA" to chest inventory with 6 rows named "Posta Kutusu (%size of {posta::%{_p}%::*}%/44)"
+	set {_} to {_p}'s metadata "POSTA"
+	set slot numbers between 45 and 53 of {_} to black stained glass pane
+	set slot 49 of {_} to red stained glass pane named "&cÇık" with lore "&7Menüyü kapatmak için tıkla."
+	set slot 22 of {_} to barrier named "&cBuralar boş..." with lore "&7Henüz kimse sana posta göndermemiş :(" if size of {posta::%{_p}%::*} <= 0
+	open {_} to {_p}
+	set {_x} to 0
+	loop {posta::%{_p}%::*}:
+		set slot {_x} of {_} to loop-value named "&aPosta &2##%loop-index%" with lore "&7Bu sana gönderilen özel bir hediye." and "" and "&7Gönderen: &f%{sender::%{_p}%::%loop-value%}%" and "&7Gönderilme tarihi: &d%{date::%{_p}%::%loop-value%}%" and "" and "&eAlmak için tıkla!"
+		add 1 to {_x}
+	stop
+	
+function SonOyuncuPosta_giveMailBox(p: player):
+	set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+	give a chest named "&aPosta Kutusu" with lore "&8Konulabilir" and "" and "&7Oyuncuların sana gönderdiği" and "&7postaları görmeni sağlar." and "" and "&c(Yetkili tarafından verildi!)" to {_p}
+	set {_msg::*} to "%SonOyuncuPosta_getLang("mailBoxGive")%"
+	send formatted "%{_prefix}% %{_msg::*}%" to {_p}
+	
+function SonOyuncuPosta_reloadSkript():
+	unload yaml "config"
+	load yaml "plugins/SonOyuncuPosta/config.yml" as "config"
+	send "[SonOyuncuPosta] Skript dosyaları ve ayarları yenilendi. (%now%)" to console
+	
+inventory click:
+	event-inventory = player's metadata "POSTA":
+		cancel event
+		close player's inventory if event-slot's index = 49
+		event-slot != black stained glass pane or red stained glass pane
+		event-slot's index != 49
+		loop {posta::%player%::*}:
+			event-slot = loop-value:
+				remove loop-value from {posta::%player%::*}
+				give loop-value to player
+				set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+				set {_msg::*} to "%SonOyuncuPosta_getLang("giftTake")%"
+				replace "{player}" in {_msg::*} with "%{sender::%player%::%loop-value%}%"
+				send formatted "%{_prefix}% %{_msg::*}%" to player
+				delete {sender::%loop-value%}
+				delete {date::%loop-value%}
+				SonOyuncuPosta_giftMenu(player)
+			
+on place:
+	if name of player's tool is "&aPosta Kutusu":
+		set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+		if block below event-location is slab:
+			cancel event
+			set {_msg::*} to "%SonOyuncuPosta_getLang("cantSetHere")%"
+			send formatted "%{_prefix}% %{_msg::*}%" to player
+		else:
+			loop all blocks in radius 3 of location of event-block:
+				if loop-value != chest:
+					set {sahibi::%location of event-block%} to player
+					set {_msg::*} to "%SonOyuncuPosta_getLang("mailBoxSet")%"
+					replace "{location}" in {_msg::*} with "%location of event-block%"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+					stop loop
+				else:
+					cancel event
+					set {_msg::*} to "%SonOyuncuPosta_getLang("cantSetHere")%"
+					send formatted "%{_prefix}% %{_msg::*}%" to player
+			
+on break:
+	if name of event-block is "&aPosta Kutusu":
+		if event-block is chest:
+			if {sahibi::%location of event-block%} is player:
+				cancel event
+				set event-block to air
+				delete {sahibi::%location of event-block%}
+				give a chest named "&aPosta Kutusu" with lore "&8Konulabilir" and "" and "&7Oyuncuların sana gönderdiği" and "&7postaları görmeni sağlar." to player
+			else:
+				cancel event
+				set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+				set {_msg::*} to "%SonOyuncuPosta_getLang("notYourMailBox")%"
+				send formatted "%{_prefix}% %{_msg::*}%" to player
+			
+on right click:
+	if name of event-block is "&aPosta Kutusu":
+		if {sahibi::%targeted block's location%} is player:
+			cancel event
+			SonOyuncuPosta_giftMenu(player)
+		else:
+			cancel event
+			set {_prefix} to "%SonOyuncuPosta_getLang("prefix")%"
+			set {_msg::*} to "%SonOyuncuPosta_getLang("notYourMailBox")%"
+			send formatted "%{_prefix}% %{_msg::*}%" to player

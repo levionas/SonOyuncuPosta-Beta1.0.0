@@ -1,0 +1,9 @@
+on placeholderapi placeholder request for the prefix "sonoyuncuposta":
+	if the identifier is "amount":
+		if size of {posta::%player%::*} <= 0:
+			set the result to "&cYok"
+		else:
+			set {_adet} to size of {posta::%player%::*}
+			set the result to "%{_adet}%"
+	if the identifier is "maxSize":
+		set the result to "44"
